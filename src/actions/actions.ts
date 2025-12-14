@@ -40,7 +40,6 @@ export async function addName(formData: FormData): Promise<void> {
 
 export async function updateName(id: number, formData: FormData): Promise<void> {
 
-
   const supabase = createSupabaseServerClient();
 
   if (isNaN(id) || id < 1) {
@@ -53,9 +52,6 @@ export async function updateName(id: number, formData: FormData): Promise<void> 
   };
 
   validateNameData(newUpdatedData);
-
-  //console.log("Updating record with ID:", id);
-
 
   const { error } = await supabase
     .from("testarea")
