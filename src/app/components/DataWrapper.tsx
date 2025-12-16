@@ -5,9 +5,11 @@
 import { Fragment, useState } from "react";
 import PostDataModal from "./PostDataModal";
 import UpdateDataModal from "./UpdateDataModal";
+import DeleteDataModal from "./DeleteDataModal";
 import { Edit, Pencil, Trash2 } from "lucide-react";
 
 type ModalMode = "delete" | "update" | "post" | null;
+
 
 interface Person {
   id: number;
@@ -19,6 +21,7 @@ interface Person {
 export default function DataWrapper({ initialData }: { initialData: Person[] }) {
 
   const [openModal, setOpenModal] = useState<ModalMode>(null);
+
   const [mId, setMId] = useState<number>(0);
 
 
@@ -82,6 +85,10 @@ export default function DataWrapper({ initialData }: { initialData: Person[] }) 
 
              {openModal === "update" && (
                 <UpdateDataModal close={handleCloseModal} id={mId} />
+            )}
+
+                 {openModal === "delete" && (
+                <DeleteDataModal close={handleCloseModal} id={mId} />
             )}
 
     </>

@@ -4,7 +4,7 @@
 
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache"; // <-- Importér revalidatePath nøglen til opdatering af UI efter en action
-
+import { z} from 'zod';
 
 interface NameData {
 
@@ -68,6 +68,26 @@ export async function updateName(id: number, formData: FormData): Promise<void> 
 
 }
 
+export async function deleteName(id: number): Promise<void> {
+
+  const supabase = createSupabaseServerClient();
+
+  if (isNaN(id) || id < 1) {
+    throw new Error("Ugyldigt ID angivet for sletning.");
+  } 
+
+  const { error } = await supabase
+    .from("testarea")
+    .delete()
+    .eq('id', id); // Brug det bundne ID her!   
+  if (error) {
+    console.error("DELETE error:", error);
+    throw new Error(error.message);
+  }   
+
+  revalidatePath("/");
+  
+}
 
 
 function validateNameData(data: NameData): void {

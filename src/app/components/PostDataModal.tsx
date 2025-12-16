@@ -7,6 +7,7 @@ import { addName } from "@/actions/actions";
 import { X } from "lucide-react";
 import TextFields from "./Textfields";
 import SubmitButton from "./SubmitButton"; // tilpasset use
+import { useState, useTransition } from "react";
 
 type Props = {
 
@@ -15,13 +16,32 @@ type Props = {
 }
 
 const PostDataModal = ({ close }: Props) => {
-    
 
-    const handleSubmitAction = async (formData: FormData) => {
 
-        await addName(formData); // Kalder Server Action
-        close(); // Lukker modalen via klient-side state
-    };
+
+    const [isPending, startTransition] = useTransition(); // Bruges til at håndtere overgangstilstande ved opdatering og fryser ikke UI'et
+    const [error, setError] = useState<string | null>(null);
+    const [success, setSuccess] = useState(false);
+
+
+    const action = (fd: FormData) => {
+
+        if (isPending) return;
+
+        startTransition(async () => {
+            setError(null);
+
+            try {
+                await addName(fd);
+                setSuccess(true);
+                setTimeout(close, 800);
+            } catch (e) {
+                console.log(e);
+                setError('Noget gik galt');
+            }
+        });
+
+    }
 
 
     return (
@@ -39,7 +59,7 @@ const PostDataModal = ({ close }: Props) => {
 
                 <section style={{ padding: 20 }}>
 
-                    <form action={handleSubmitAction}>
+                    <form action={action}>
 
                         <TextFields
                             name="name"
@@ -53,13 +73,19 @@ const PostDataModal = ({ close }: Props) => {
 
                         />
 
-                        <SubmitButton>Gem</SubmitButton>
+                        <SubmitButton
+                            pendingText="Gemmer..."
+                            isPending={isPending} >
+                            Gem
+                        </SubmitButton>
 
 
                     </form>
 
                 </section>
 
+                {error && <p className="error">{error}</p>}
+                <div className="grid grid-cols-1 text-center font-bold"> {success && <p>Oprettet</p>}</div>
 
             </section>
 

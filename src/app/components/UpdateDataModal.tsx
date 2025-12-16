@@ -1,118 +1,123 @@
-'use client';
+//src/app/components/UpdateDataModal.tsx
+
+"use client";
 
 import { updateName } from "@/actions/actions";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { X } from "lucide-react";
-import { NextResponse } from "next/server";
-import TextFields from './Textfields';
-import SubmitButton from "./SubmitButton"; // tilpasset use
+import TextFields from "./Textfields";
+import SubmitButton from "./SubmitButton";
 
 type Props = {
-    close: () => void;
-    id: number;
-}
+  close: () => void;
+  id: number;
+};
 
 interface PersonFormData {
-  id: number;
   name: string;
   lastname: string;
 }
 
 const UpdateDataModal = ({ close, id }: Props) => {
 
-    const [formData, setFormData] = useState<PersonFormData | null>(null);
+  const [formData, setFormData] = useState<PersonFormData | null>(null);
 
-    useEffect(() => {
-        const supabase = createSupabaseBrowserClient();
+  const [isPending, startTransition] = useTransition(); // Bruges til at håndtere overgangstilstande ved opdatering og fryser ikke UI'et
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
 
-        (async () => {
+  useEffect(() => {
+    const supabase = createSupabaseBrowserClient();
 
-            const { data, error } = await supabase
-                .from('testarea')
-                .select('*')
-                .eq('id', id).single();
+    (async () => {
+      const { data, error } = await supabase
+        .from("testarea")
+        .select("name, lastname")
+        .eq("id", id)
+        .single();
 
-            if (error) {
-                console.error("Fetch error:", error);
-                return;
-            }
+      if (!error && data) {
+        setFormData(data);
+      }
+    })();
+  }, [id]);
 
-            if (!data) {
-                console.error("Record not found");
-                return;
-            }
-
-            setFormData(data as PersonFormData);
-
-            //console.log("Fetched data for update:", data);
-
-        })()
-
-    },[]);
-
-
-     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const { name, value } = e.target;
-        setFormData(prev => prev ? { ...prev, [name]: value } as PersonFormData : null);
-    };
- 
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;// Opdaterer kun det ændrede felt i formData og bevarer de andre felter 
+    setFormData(prev => prev ? { ...prev, [name]: value } : prev); // Sikrer at prev ikke er null og opdaterer kun hvis det ikke er det
+  };
 
 
 
-     const handleSubmit = async (formData: FormData) => {
-    
-            await updateName(id, formData); // Kalder Server Action
-            close(); // Lukker modalen via klient-side state
-        };
-    
+
+  const action = (fd: FormData) => {
 
 
-    return (
-       
-        <section
-            className="modal-container"
-            role="dialog"
-            aria-modal="true"
-        >
-            <div className="grid grid-cols-1 items-center">
+    if (isPending) return;
 
-                <div className="justify-self-end" onClick={close}><X /></div>
-            </div>
+    startTransition(async () => {
+      setError(null);
+      try {
 
-            <form action={handleSubmit}>
+        await updateName(id, fd);
+        setSuccess(true);
+        setTimeout(close, 800);
 
-                <TextFields
-                    label="Name"
-                    name="name"
-                    value={formData?.name || ''}
-                    onChange={handleChange}
-                />
-                <span className="text-gray-400 text-sm">
-                </span>
+      } catch (e) {
 
-                <TextFields
-                    label="Lastname"
-                    name="lastname"
-                    value={formData?.lastname || ''}
-                    onChange={handleChange}
-                />
-                <span className="text-gray-400 text-sm">
-                </span>
+        console.log(e);
+        setError('Noget gik galt');
 
-                <SubmitButton>Updater</SubmitButton>
+      }
+    });
 
-            </form>
-
-          
-
-        </section>
+  }
 
 
-    );
+  if (!formData) return null;
+
+  return (
+
+    <section className="modal-container" role="dialog" aria-modal="true">
+      <div className="grid grid-cols-1">
+        <button className="justify-self-end" type="button" onClick={close}>
+          <X />
+        </button>
+      </div>
+
+      <form
+        action={action}
+      >
+        <TextFields
+          label="Name"
+          name="name"
+          value={formData?.name}
+          onChange={handleChange}
+        />
+
+        <TextFields
+          label="Lastname"
+          name="lastname"
+          value={formData?.lastname}
+          onChange={handleChange}
+        />
+
+        <SubmitButton
+          pendingText="Opdaterer..."
+          isPending={isPending} >
+          Opdater
+        </SubmitButton>
+
+      </form>
+
+      {error && <p className="error">{error}</p>}
+      <div className="grid grid-cols-1 text-center font-bold"> {success && <p>Opdateret</p>}</div>
 
 
 
-}
+    </section>
+  );
+};
 
 export default UpdateDataModal;
