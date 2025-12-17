@@ -16,17 +16,23 @@ type Props = {
 
 const DeleteDataModal = ({ close, id }: Props) => {
 
-const { run, isPending, error, success } = useCrudAction(
+
+  /* const { run, isPending, error, success } = useCrudAction(
     deleteName,
     {
       onSuccess: close,
       autoCloseDelay: 800,
     }
-  );
+  ); */
 
 
-/*   const action = () => {
 
+    const [isPending, startTransition] = useTransition(); // Bruges til at håndtere overgangstilstande ved opdatering og fryser ikke UI'et
+    const [error, setError] = useState<string | null>(null);
+    const [success, setSuccess] = useState(false);
+
+
+   const action = () => {
 
     if (isPending) return; // Forhindrer dobbeltklik under igangværende sletning
 
@@ -43,7 +49,7 @@ const { run, isPending, error, success } = useCrudAction(
       }
     });
 
-  } */
+  } 
 
 
   return (
@@ -52,7 +58,7 @@ const { run, isPending, error, success } = useCrudAction(
       <p className="mb-4">Vil du slette denne post?</p>
 
       <form
-        action={() => run(id)}
+        action={action}
         className="grid grid-cols-2"
       >
 

@@ -111,8 +111,10 @@ const UpdateDataModal = ({ close, id }: Props) => {
 
       </form>
 
-      {error && <p className="error">{error}</p>}
-      <div className="grid grid-cols-1 text-center font-bold"> {success && <p>Opdateret</p>}</div>
+      <div className="grid grid-cols-1 text-center font-bold">
+        {error && <p className="error">{error}</p>}
+        {success && <p>Opdateret</p>}
+      </div>
 
 
 

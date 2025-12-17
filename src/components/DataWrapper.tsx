@@ -1,8 +1,9 @@
-// src/components/DataDisplayWrapper.tsx
+//src/components/DataWrapper.tsx
 
 'use client'; // <-- Sæt "use client"; her!
 
 import { Fragment, useState } from "react";
+
 import PostDataModal from "./PostDataModal";
 import UpdateDataModal from "./UpdateDataModal";
 import DeleteDataModal from "./DeleteDataModal";
@@ -18,7 +19,7 @@ interface Person {
 }
 
 // Modtager data fra Server Componenten via props
-export default function DataWrapper({ initialData }: { initialData: Person[] }) {
+const DataWrapper = ({ initialData }: { initialData: Person[] })=>  {
 
   const [openModal, setOpenModal] = useState<ModalMode>(null);
 
@@ -95,4 +96,6 @@ export default function DataWrapper({ initialData }: { initialData: Person[] }) 
     
   );
 }
+
+export default DataWrapper;
 

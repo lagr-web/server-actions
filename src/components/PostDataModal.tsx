@@ -17,8 +17,6 @@ type Props = {
 
 const PostDataModal = ({ close }: Props) => {
 
-
-
     const [isPending, startTransition] = useTransition(); // Bruges til at håndtere overgangstilstande ved opdatering og fryser ikke UI'et
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState(false);
@@ -26,9 +24,10 @@ const PostDataModal = ({ close }: Props) => {
 
     const action = (fd: FormData) => {
 
-        if (isPending) return;
+        if (isPending) return; // Forhindrer dobbeltklik under igangværende indsættelse
 
-        startTransition(async () => {
+        startTransition(async () => { // Starter en overgangstilstand som ikke blokerer UI'et
+            
             setError(null);
 
             try {
@@ -57,7 +56,7 @@ const PostDataModal = ({ close }: Props) => {
                     Tilføj person
                 </h2>
 
-                <section style={{ padding: 20 }}>
+                <section className="p-4">
 
                     <form action={action}>
 
@@ -84,8 +83,11 @@ const PostDataModal = ({ close }: Props) => {
 
                 </section>
 
-                {error && <p className="error">{error}</p>}
-                <div className="grid grid-cols-1 text-center font-bold"> {success && <p>Oprettet</p>}</div>
+              
+                <div className="grid grid-cols-1 text-center font-bold"> 
+                      {error && <p className="error">{error}</p>}
+                    {success && <p>Oprettet</p>}
+                    </div>
 
             </section>
 
